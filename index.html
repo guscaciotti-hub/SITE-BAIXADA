@@ -64,7 +64,7 @@
   render(); start();
 })();
 </script>
-<style>#contato{scroll-margin-top:90px}#ev-success{display:none}</style>
+<style>section[id],#contato{scroll-margin-top:90px}#ev-success{display:none}</style>
 <script>
 (function(){
   // ---------- 1) Botoes "Falar com especialista" -> rolar ate o formulario ----------
@@ -72,6 +72,17 @@
   document.querySelectorAll('button').forEach(function(b){
     if(!b.closest('form') && /Falar com (?:um )?especialista/i.test(b.textContent||'')){
       b.style.cursor='pointer'; b.addEventListener('click',toForm);
+    }
+  });
+
+  // ---------- Menu do topo -> rolar ate as secoes ----------
+  var NAVMAP={'solucoes':'servicos','solucões':'servicos','soluções':'servicos','diferenciais':'diferenciais','sobre':'sobre','clientes':'clientes'};
+  function scrollToId(id){ var el=document.getElementById(id); if(!el) return; var cur=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0; var y=el.getBoundingClientRect().top+cur-80; try{window.scrollTo({top:y,behavior:'smooth'});}catch(_){window.scrollTo(0,y);} }
+  document.querySelectorAll('nav button, header button').forEach(function(b){
+    var t=(b.textContent||'').trim().toLowerCase();
+    if(NAVMAP[t]){
+      b.style.cursor='pointer';
+      b.addEventListener('click',function(e){ if(e)e.preventDefault(); scrollToId(NAVMAP[t]); });
     }
   });
 
