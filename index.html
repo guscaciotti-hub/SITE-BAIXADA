@@ -124,13 +124,8 @@
     box.scrollIntoView({behavior:'smooth',block:'center'});
     done=true;
 
-    // ---------- CONVERSOES (somente aqui, na tela de sucesso) ----------
-    try{
-      window.dataLayer=window.dataLayer||[];
-      window.gtag=window.gtag||function(){window.dataLayer.push(arguments);};
-      gtag('event','conversion',{'send_to':SENDTO});
-    }catch(_){}
-    try{ window.dataLayer.push({event:'form_lead_success'}); }catch(_){}
+    // ---------- SINAL para o GTM (a conversao e disparada pela tag do GTM neste evento) ----------
+    try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'form_lead_success'}); }catch(_){}
   });
 })();
 </script>
