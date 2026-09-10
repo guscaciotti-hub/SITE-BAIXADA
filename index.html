@@ -95,6 +95,16 @@
   box.style.display='none';
   form.parentNode.insertBefore(box, form.nextSibling);
 
+  // honeypot anti-spam (invisivel para humanos)
+  var hp=document.createElement('input');
+  hp.type='text'; hp.name='website'; hp.tabIndex=-1; hp.autocomplete='off';
+  hp.setAttribute('aria-hidden','true');
+  hp.style.cssText='position:absolute!important;left:-9999px!important;top:auto;width:1px;height:1px;opacity:0;pointer-events:none';
+  form.appendChild(hp);
+
+  var SB_URL='https://gmycqvvvglexbtbqkjzi.supabase.co/functions/v1/evoluze-submit-lead';
+  var SB_KEY='sb_publishable_N4DdqinjzjnMBWsik5qj2A_ksPBX9Av';
+
   function v(sel){ var e=form.querySelector(sel); return e ? (e.value||'').trim() : ''; }
 
   form.addEventListener('submit', function(e){
@@ -123,6 +133,14 @@
     box.style.display='block';
     box.scrollIntoView({behavior:'smooth',block:'center'});
     done=true;
+
+    // ---------- grava o lead no banco (Supabase) ----------
+    try{
+      fetch(SB_URL,{ method:'POST', keepalive:true,
+        headers:{'Content-Type':'application/json','apikey':SB_KEY},
+        body:JSON.stringify({ nome:nome, empresa:empresa, whatsapp:whats, email:email, segmento:seg, objetivo:obj, origem:(location.hostname||'site'), user_agent:(navigator.userAgent||''), website:(hp.value||'') })
+      }).catch(function(){});
+    }catch(_){}
 
     // ---------- SINAL para o GTM (a conversao e disparada pela tag do GTM neste evento) ----------
     try{ window.dataLayer=window.dataLayer||[]; window.dataLayer.push({event:'form_lead_success'}); }catch(_){}
