@@ -64,7 +64,14 @@
   render(); start();
 })();
 </script>
-<style>section[id],#contato{scroll-margin-top:90px}#ev-success{display:none}</style>
+<style>section[id],#contato{scroll-margin-top:90px}#ev-success{display:none}
+@media (max-width:767px){
+  .grid.md\:grid-cols-2,.grid.md\:grid-cols-3,.grid.lg\:grid-cols-3{grid-template-columns:minmax(0,1fr)!important}
+  #contato .grid.grid-cols-2,#contato form .grid{grid-template-columns:minmax(0,1fr)!important}
+  #contato input,#contato select,#contato textarea{max-width:100%;width:100%}
+  input,select,textarea{max-width:100%}
+  #contato form button[type=submit]{font-size:1rem;padding-left:1rem;padding-right:1rem;white-space:normal;line-height:1.25}
+}</style>
 <script>
 (function(){
   // ---------- 1) Botoes "Falar com especialista" -> rolar ate o formulario ----------
