@@ -123,6 +123,19 @@
   var SB_URL='https://gmycqvvvglexbtbqkjzi.supabase.co/functions/v1/evoluze-submit-lead';
   var SB_KEY='sb_publishable_N4DdqinjzjnMBWsik5qj2A_ksPBX9Av';
 
+  // captura de ORIGEM (primeira visita): utm/gclid/fbclid/referrer
+  function originData(){
+    try{
+      var K='ev_origin', saved=sessionStorage.getItem(K);
+      if(saved) return JSON.parse(saved);
+      var q=new URLSearchParams(location.search);
+      var d={ utm_source:q.get('utm_source'), utm_medium:q.get('utm_medium'), utm_campaign:q.get('utm_campaign'), utm_term:q.get('utm_term'), utm_content:q.get('utm_content'), gclid:q.get('gclid'), fbclid:q.get('fbclid'), referrer:document.referrer||'', landing_page:location.href };
+      sessionStorage.setItem(K, JSON.stringify(d));
+      return d;
+    }catch(_){ return { referrer:(document.referrer||''), landing_page:location.href }; }
+  }
+  originData(); // grava logo na chegada
+
   function v(sel){ var e=form.querySelector(sel); return e ? (e.value||'').trim() : ''; }
 
   form.addEventListener('submit', function(e){
@@ -152,11 +165,16 @@
     box.scrollIntoView({behavior:'smooth',block:'center'});
     done=true;
 
-    // ---------- grava o lead no banco (Supabase) ----------
+    // ---------- grava o lead no banco (Supabase) com a ORIGEM ----------
     try{
+      var org=originData();
+      var payload={ nome:nome, empresa:empresa, whatsapp:whats, email:email, segmento:seg, objetivo:obj,
+        origem:(location.hostname||'site'), user_agent:(navigator.userAgent||''), website:(hp.value||''),
+        utm_source:org.utm_source, utm_medium:org.utm_medium, utm_campaign:org.utm_campaign, utm_term:org.utm_term,
+        utm_content:org.utm_content, gclid:org.gclid, fbclid:org.fbclid, referrer:org.referrer, landing_page:org.landing_page };
       fetch(SB_URL,{ method:'POST', keepalive:true,
         headers:{'Content-Type':'application/json','apikey':SB_KEY},
-        body:JSON.stringify({ nome:nome, empresa:empresa, whatsapp:whats, email:email, segmento:seg, objetivo:obj, origem:(location.hostname||'site'), user_agent:(navigator.userAgent||''), website:(hp.value||'') })
+        body:JSON.stringify(payload)
       }).catch(function(){});
     }catch(_){}
 

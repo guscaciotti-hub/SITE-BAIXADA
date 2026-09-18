@@ -82,7 +82,7 @@
     <div class="tablewrap">
       <table>
         <thead><tr>
-          <th>Data</th><th>Nome</th><th>Empresa</th><th>WhatsApp</th><th>E-mail</th><th>Segmento</th><th>Objetivo</th>
+          <th>Data</th><th>Origem</th><th>Nome</th><th>Empresa</th><th>WhatsApp</th><th>E-mail</th><th>Segmento</th><th>Objetivo</th>
         </tr></thead>
         <tbody id="rows"></tbody>
       </table>
@@ -102,6 +102,12 @@
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function fmtDate(iso){ try{ return new Date(iso).toLocaleString('pt-BR'); }catch(e){ return iso||''; } }
   function waLink(phone){ var d=(phone||'').replace(/\D/g,''); if(!d) return null; if(d.length<=11) d='55'+d; return 'https://wa.me/'+d; }
+  function canalBadge(l){
+    var c=l.canal||'—';
+    var color = /Google Ads/.test(c)?'#1a73e8' : /Meta|Face|Insta/.test(c)?'#d6336c' : /organico|Google \(|Busca/.test(c)?'#0d9488' : c==='Direto'?'#64748b' : '#7c3aed';
+    var camp=l.utm_campaign?('<div style="font-size:.72rem;color:#94a3b8;margin-top:2px">'+esc(l.utm_campaign)+'</div>'):'';
+    return '<span style="display:inline-block;background:'+color+';color:#fff;font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap">'+esc(c)+'</span>'+camp;
+  }
 
   function render(list){
     var rows=document.getElementById('rows'), empty=document.getElementById('empty');
@@ -114,6 +120,7 @@
       var em=l.email?('<a href="mailto:'+esc(l.email)+'">'+esc(l.email)+'</a>'):'';
       return '<tr>'
         +'<td style="white-space:nowrap">'+esc(fmtDate(l.created_at))+'</td>'
+        +'<td>'+canalBadge(l)+'</td>'
         +'<td><strong>'+esc(l.nome)+'</strong></td>'
         +'<td>'+esc(l.empresa)+'</td>'
         +'<td>'+wa+'</td>'
@@ -128,14 +135,14 @@
     var q=(document.getElementById('search').value||'').toLowerCase().trim();
     if(!q){ render(allLeads); return; }
     render(allLeads.filter(function(l){
-      return [l.nome,l.empresa,l.email,l.whatsapp,l.segmento,l.objetivo].join(' ').toLowerCase().indexOf(q)>-1;
+      return [l.nome,l.empresa,l.email,l.whatsapp,l.segmento,l.objetivo,l.canal,l.utm_campaign].join(' ').toLowerCase().indexOf(q)>-1;
     }));
   }
 
   function toCSV(){
-    var head=['Data','Nome','Empresa','WhatsApp','Email','Segmento','Objetivo'];
+    var head=['Data','Origem','Campanha','Nome','Empresa','WhatsApp','Email','Segmento','Objetivo'];
     var lines=[head.join(';')].concat(allLeads.map(function(l){
-      return [fmtDate(l.created_at),l.nome,l.empresa,l.whatsapp,l.email,l.segmento,l.objetivo]
+      return [fmtDate(l.created_at),l.canal,l.utm_campaign,l.nome,l.empresa,l.whatsapp,l.email,l.segmento,l.objetivo]
         .map(function(x){ return '"'+String(x==null?'':x).replace(/"/g,'""')+'"'; }).join(';');
     }));
     var blob=new Blob(["﻿"+lines.join('\n')],{type:'text/csv;charset=utf-8'});
